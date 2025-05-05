@@ -17,10 +17,21 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
+      - name: Configure Docker for Google Cloud
+        run: gcloud auth configure-docker
+
+      - name: Build Docker image
+        run: |
+          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/kts-mini-dashboard-backend .
+
+      - name: Push Docker image to Google Container Registry
+        run: |
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/kts-mini-dashboard-backend
+
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: kts-mini-dashboard-backend
           region: asia-southeast1
-          source: .
+          image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/kts-mini-dashboard-backend
 
