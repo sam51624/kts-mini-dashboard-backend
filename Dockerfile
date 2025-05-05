@@ -1,10 +1,10 @@
-# 🔹 1. ใช้ Python image base
-FROM python:3.10-slim
+# 📌 1. ใช้ Python base image
+FROM python:3.10-slim AS base
 
-# 🔹 2. ปิด prompt interactive ของ Python
+# 📌 2. ปิด interactive prompt
 ENV PYTHONUNBUFFERED=1
 
-# 🔹 3. ติดตั้ง system dependencies ที่จำเป็น
+# 📌 3. ติดตั้ง system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     libffi-dev \
@@ -12,23 +12,24 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# 🔹 4. Set working dir
+# 📌 4. กำหนด working directory
 WORKDIR /app
 
-# 🔹 5. Copy project files ทั้งหมด
+# 📌 5. คัดลอก requirements.txt ก่อน (ช่วยใช้ cache)
+COPY requirements.txt .
+
+# 📌 6. ติดตั้ง Python packages
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# 📌 7. คัดลอกโค้ดทั้งหมด
 COPY . .
 
-# 🔹 6. ติดตั้ง Python packages
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
-# 🔹 7. ให้ container รับ PORT จาก env
+# 📌 8. กำหนด ENV สำหรับ Gunicorn และ Google Credentials
 ENV PORT=8080
-
-# 🔹 8. Path ไปยัง Service Account key (ถ้าใช้ Google Vision / Sheets API)
 ENV GOOGLE_APPLICATION_CREDENTIALS="/etc/secrets/credentials.json"
 
-# 🔹 9. ใช้ gunicorn รัน Flask app โดยรับ $PORT
-CMD exec gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 0
+# 📌 9. สั่ง Gunicorn รันแอป Flask (เช่น app.py)
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:8080", "--workers=1", "--threads=8", "--timeout=0"]
 
 
