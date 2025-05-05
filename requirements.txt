@@ -1,0 +1,16 @@
+flask==2.3.3
+requests==2.31.0
+openai>=1.0.0
+gunicorn==21.2.0
+gspread
+oauth2client
+pandas
+google-cloud-vision
+sentence-transformers
+faiss-cpu
+pytz==2024.1
+sqlalchemy>=1.4
+psycopg2-binary
+flask-cors
+bcrypt
+
