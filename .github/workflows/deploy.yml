@@ -21,17 +21,14 @@ jobs:
         run: gcloud auth configure-docker
 
       - name: Build Docker image
-        run: |
-          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/kts-mini-dashboard-backend .
+        run: docker build -t gcr.io/causal-relic-457214-g5/kts-mini-dashboard-backend .
 
-      - name: Push Docker image to Google Container Registry
-        run: |
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/kts-mini-dashboard-backend
+      - name: Push Docker image to GCR
+        run: docker push gcr.io/causal-relic-457214-g5/kts-mini-dashboard-backend
 
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: kts-mini-dashboard-backend
           region: asia-southeast1
-          image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/kts-mini-dashboard-backend
-
+          image: gcr.io/causal-relic-457214-g5/kts-mini-dashboard-backend
