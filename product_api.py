@@ -30,14 +30,33 @@ def get_all_products():
 def add_product():
     data = request.json
     session = SessionLocal()
+
+    # ✅ Validation เบื้องต้น
+    sku = data.get("sku", "").strip()
+    name = data.get("name", "").strip()
+    price = data.get("price", None)
+
+    if not sku:
+        return jsonify({"error": "กรุณาระบุรหัสสินค้า (SKU)"}), 400
+    if not name or len(name) < 3:
+        return jsonify({"error": "ชื่อสินค้าต้องมีอย่างน้อย 3 ตัวอักษร"}), 400
+    if price is None:
+        return jsonify({"error": "กรุณาระบุราคาสินค้า"}), 400
+    try:
+        price = float(price)
+        if price < 0:
+            return jsonify({"error": "ราคาสินค้าต้องไม่ติดลบ"}), 400
+    except ValueError:
+        return jsonify({"error": "ราคาสินค้าต้องเป็นตัวเลข"}), 400
+
     try:
         product = Product(
-            sku=data.get("sku", ""),
-            name=data.get("name", ""),
+            sku=sku,
+            name=name,
             description=data.get("description", ""),
             category=data.get("category", ""),
             cost_price=float(data.get("cost_price", 0)),
-            price=float(data.get("price", 0)),  # ✅ ป้องกัน KeyError และแปลง float
+            price=price,
             stock_quantity=int(data.get("stock_quantity", 0)),
             available_stock=int(data.get("available_stock", 0)),
             image_url=""
@@ -82,3 +101,4 @@ def get_product_by_sku(sku):
             return jsonify({"error": "ไม่พบสินค้า"}), 404
     finally:
         session.close()
+
