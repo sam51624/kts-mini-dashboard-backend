@@ -32,18 +32,18 @@ def add_product():
     session = SessionLocal()
     try:
         product = Product(
-            sku=data["sku"],
-            name=data["name"],
+            sku=data.get("sku", ""),
+            name=data.get("name", ""),
             description=data.get("description", ""),
             category=data.get("category", ""),
-            cost_price=data.get("cost_price", 0),
-            price=data["price"],
-            stock_quantity=data.get("stock_quantity", 0),
-            available_stock=data.get("available_stock", 0),
-            image_url=""  # legacy field ไม่ใช้งานแล้ว
+            cost_price=float(data.get("cost_price", 0)),
+            price=float(data.get("price", 0)),  # ✅ ป้องกัน KeyError และแปลง float
+            stock_quantity=int(data.get("stock_quantity", 0)),
+            available_stock=int(data.get("available_stock", 0)),
+            image_url=""
         )
 
-        # ✅ เพิ่มรูปภาพ (ถ้ามี)
+        # ✅ เพิ่มรูปภาพถ้ามี
         image_urls = data.get("images", [])
         for url in image_urls:
             product.images.append(ProductImage(url=url))
@@ -51,6 +51,7 @@ def add_product():
         session.add(product)
         session.commit()
         return jsonify({"message": "เพิ่มสินค้าสำเร็จ ✅", "product_id": product.id}), 201
+
     except SQLAlchemyError as e:
         session.rollback()
         return jsonify({"error": str(e)}), 400
@@ -71,7 +72,7 @@ def get_product_by_sku(sku):
                 "description": product.description,
                 "category": product.category,
                 "cost_price": float(product.cost_price),
-                "price": float(product.price),   
+                "price": float(product.price),
                 "stock_quantity": product.stock_quantity,
                 "available_stock": product.available_stock,
                 "images": [img.url for img in product.images],
@@ -81,4 +82,3 @@ def get_product_by_sku(sku):
             return jsonify({"error": "ไม่พบสินค้า"}), 404
     finally:
         session.close()
-
