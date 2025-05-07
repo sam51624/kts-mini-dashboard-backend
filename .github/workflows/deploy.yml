@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:  # ✅ เพิ่ม manual trigger
 
 jobs:
   deploy:
@@ -32,4 +33,3 @@ jobs:
           service: kts-mini-dashboard-backend
           region: asia-southeast1
           image: asia-southeast1-docker.pkg.dev/causal-relic-457214-g5/kts-mini-dashboard-backend/kts-mini-dashboard-backend
-
