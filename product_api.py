@@ -59,7 +59,6 @@ def add_product():
             price=price,
             stock_quantity=int(data.get("stock_quantity", 0)),
             available_stock=int(data.get("available_stock", 0)),
-            image_url=""
         )
 
         # ✅ เพิ่มรูปภาพถ้ามี
